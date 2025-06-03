@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""sentiment-analysis-enhanced.py
-
-Basado en el script original sentiment-analysis-with-nltk.py
-Con frases de ejemplo enriquecidas de datasets públicos
-"""
 
 import numpy as np
 import pandas as pd
@@ -53,58 +48,46 @@ def visualize_stopwords():
 
 
 def get_sentences_from_datasets(num_regular=50, num_tricky=50):
-    """
-    Obtiene frases tanto regulares como tricky (ambiguas/difíciles) desde diferentes datasets públicos.
-    
-    Args:
-        num_regular: Número de frases regulares a obtener (mitad positivas, mitad negativas)
-        num_tricky: Número de frases ambiguas o difíciles para análisis de sentimientos
-        
-    Returns:
-        tuple: (regular_sentences, tricky_sentences)
-    """
-    # Inicializar listas
     regular_sentences = []
     tricky_sentences = []
     
-    # URLs de los datasets (fuentes estables y abiertas)
-    # Datasets de sentimientos confiables y abiertos alojados en repositorios estables
+
     imdb_url = "https://raw.githubusercontent.com/Ankit152/IMDB-sentiment-analysis/master/IMDB-Dataset.csv"
     amazon_reviews_url = "https://raw.githubusercontent.com/qdata/deep-learning-for-sequence/master/data/amazon/amazon_reviews_small.csv"
     stanford_url = "https://raw.githubusercontent.com/suraj-deshmukh/Movie-Review-Sentiment-Analysis/master/test_pos.txt"
     
-    # === REGULAR SENTENCES (IMDB Movie Reviews) ===
+
     try:
         print("Downloading regular sentences from IMDB dataset...")
         response = requests.get(imdb_url, timeout=10)
         response.raise_for_status()
         
-        # Cargar el dataset IMDB
+
         try:
             data = pd.read_csv(io.StringIO(response.text), usecols=['review', 'sentiment'])
             
-            # Seleccionar frases cortas y claras (menos de 100 caracteres) para el conjunto regular
+
             data['length'] = data['review'].apply(len)
             short_reviews = data[data['length'] < 100]
             
-            # Filtrar por sentimiento
+
             positive_reviews = short_reviews[short_reviews['sentiment'] == 'positive']['review'].tolist()
             negative_reviews = short_reviews[short_reviews['sentiment'] == 'negative']['review'].tolist()
             
-            # Si no hay suficientes reseñas cortas, usar las regulares
+
             if len(positive_reviews) < num_regular//2 or len(negative_reviews) < num_regular//2:
                 positive_reviews = data[data['sentiment'] == 'positive']['review'].tolist()
                 negative_reviews = data[data['sentiment'] == 'negative']['review'].tolist()
             
-            # Seleccionar muestras aleatorias en cantidades iguales
+
             num_each = num_regular // 2
             pos_samples = random.sample(positive_reviews, min(num_each, len(positive_reviews)))
             neg_samples = random.sample(negative_reviews, min(num_each, len(negative_reviews)))
             
         except Exception as e:
-            # Si hay un problema con el formato del CSV, intenta una carga alternativa
+
             print(f"Error processing IMDB CSV: {e}")
-            # Cargar por líneas y hacer parsing manual
+
             lines = response.text.split('\n')[:1000]  # Limitar a primeras 1000 líneas
             pos_reviews = []
             neg_reviews = []
@@ -120,7 +103,7 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
                 review = parts[0].strip('"\'').strip()
                 sentiment = parts[-1].strip('"\'').strip()
                 
-                # Asignar a positivo o negativo
+
                 if 'positive' in sentiment.lower() or 'pos' in sentiment.lower():
                     pos_reviews.append(review)
                 elif 'negative' in sentiment.lower() or 'neg' in sentiment.lower():
@@ -203,19 +186,19 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
         
         regular_sentences.extend(fallback_regular[:num_regular])
     
-    # === TRICKY SENTENCES (Amazon Reviews & Stanford Movie Reviews) ===
+
     try:
-        # Intentamos con dataset de Amazon reviews
+
         print("Downloading tricky sentences from Amazon Reviews & Stanford datasets...")
         amazon_response = requests.get(amazon_reviews_url, timeout=10)
         amazon_response.raise_for_status()
         
-        # Cargar dataset Amazon
+
         try:
-            # Intentar parsear como CSV normal
+
             amazon_data = pd.read_csv(io.StringIO(amazon_response.text))
             
-            # Verificar las columnas disponibles
+
             if 'reviewText' in amazon_data.columns:
                 amazon_text_col = 'reviewText'
             elif 'review' in amazon_data.columns:
@@ -223,15 +206,15 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
             elif 'text' in amazon_data.columns:
                 amazon_text_col = 'text'
             else:
-                # Si no encontramos columna de texto, usar la primera columna
+
                 amazon_text_col = amazon_data.columns[0]
             
-            # Extraer las reseñas de Amazon como texto
+
             amazon_reviews = amazon_data[amazon_text_col].tolist()
             
         except Exception as e:
             print(f"Error processing Amazon CSV: {e}")
-            # Parseo manual por líneas
+
             amazon_reviews = []
             lines = amazon_response.text.split('\n')[:500]  # Limitar a primeras 500 líneas
             
@@ -239,39 +222,36 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
                 if not line.strip() or line.startswith('#'):
                     continue
                     
-                # Intentar extraer el texto de la reseña
+
                 parts = line.split(',', 3)  # Dividir en máximo 4 partes
                 if len(parts) >= 3:
                     review = parts[2].strip('"\'').strip()
                     if len(review) > 20:  # Solo considerar reseñas no vacías
                         amazon_reviews.append(review)
         
-        # Intentamos con Stanford dataset (reviews positivas)
+
         stanford_response = requests.get(stanford_url, timeout=10)
         stanford_response.raise_for_status()
         
-        # Procesar dataset de Stanford (archivo de texto plano)
+
         stanford_reviews = [line.strip() for line in stanford_response.text.split('\n') if line.strip()]
         
-        # Combinar datasets
+
         combined_reviews = amazon_reviews + stanford_reviews
         
-        # Seleccionar frases tricky - criterios:
-        # 1. Frases con más de 10 palabras (más contexto = más posibilidad de ambigüedad)
-        # 2. Frases que contengan palabras de contraste (but, however, although, etc.)
-        # 3. Frases con negaciones
+
         
         tricky_candidates = []
         contrast_words = ['but', 'however', 'although', 'yet', 'though', 'while', 'nevertheless', 'despite']
         negation_words = ['not', "n't", 'never', 'no', 'nothing', 'neither', 'nor']
         
         for review in combined_reviews:
-            # Convertir a string y normalizar
+
             review_str = str(review).lower()
-            # Contar palabras
+
             word_count = len(review_str.split())
             
-            # Aplicar criterios para clasificar como tricky
+
             if word_count > 10:
                 has_contrast = any(word in review_str for word in contrast_words)
                 has_negation = any(word in review_str for word in negation_words)
@@ -279,19 +259,18 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
                 if has_contrast or has_negation:
                     tricky_candidates.append(review)
         
-        # Si no hay suficientes candidatos tricky, seleccionar reseñas más largas
+
         if len(tricky_candidates) < num_tricky:
-            # Filtrar reseñas más largas como alternativa
+
             long_reviews = [r for r in combined_reviews if len(str(r).split()) > 15 
                           and r not in tricky_candidates]
             tricky_candidates.extend(long_reviews)
         
         # Seleccionar muestras aleatorias
         if tricky_candidates:
-            # Para mantener el balance, aseguramos tener al menos la mitad de cada tipo
+
             if len(tricky_candidates) >= num_tricky:
-                # Seleccionar aleatoriamente pero asegurar diversidad
-                # Clasificar candidatos por tipo
+
                 contrast_candidates = [s for s in tricky_candidates if any(word in str(s).lower() for word in contrast_words)]
                 negation_candidates = [s for s in tricky_candidates if any(word in str(s).lower() for word in negation_words)]
                 long_candidates = [s for s in tricky_candidates if len(str(s).split()) > 20 and 
@@ -299,13 +278,13 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
                 other_candidates = [s for s in tricky_candidates if s not in contrast_candidates and 
                                   s not in negation_candidates and s not in long_candidates]
                 
-                # Determinar cuántos de cada tipo queremos
+
                 num_contrast = min(num_tricky // 3, len(contrast_candidates))
                 num_negation = min(num_tricky // 3, len(negation_candidates))
                 num_long = min(num_tricky // 6, len(long_candidates))
                 num_other = num_tricky - (num_contrast + num_negation + num_long)
                 
-                # Seleccionar de cada categoría
+
                 selected_tricky = []
                 if contrast_candidates and num_contrast > 0:
                     selected_tricky.extend(random.sample(contrast_candidates, num_contrast))
@@ -314,13 +293,13 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
                 if long_candidates and num_long > 0:
                     selected_tricky.extend(random.sample(long_candidates, num_long))
                 
-                # Completar con otros si es necesario
+
                 remaining_candidates = [s for s in tricky_candidates if s not in selected_tricky]
                 if remaining_candidates and num_other > 0:
                     needed = min(num_other, len(remaining_candidates))
                     selected_tricky.extend(random.sample(remaining_candidates, needed))
                 
-                # Si aún no tenemos suficientes, usar respaldo
+
                 if len(selected_tricky) < num_tricky:
                     remaining_needed = num_tricky - len(selected_tricky)
                     print(f"Still need {remaining_needed} more tricky sentences, adding from fallback...")
@@ -328,20 +307,19 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
                     
                 tricky_sentences.extend(selected_tricky)
             else:
-                # Si no hay suficientes, usar todas las que hay
+
                 tricky_sentences.extend(tricky_candidates)
-                # Y completar con frases de respaldo
+
                 print("Not enough tricky sentences, adding fallback tricky examples...")
                 remaining = num_tricky - len(tricky_candidates)
                 
-                # Seleccionar una mezcla de tipos de frases de respaldo
-                # Dividir fallback_tricky en categorías
+
                 contrast_fallback = fallback_tricky[:20]
                 negation_fallback = fallback_tricky[20:30]
                 long_fallback = fallback_tricky[30:40]
                 sarcasm_fallback = fallback_tricky[40:]
                 
-                # Distribuir proporcionalmente
+
                 num_contrast_fallback = remaining // 4
                 num_negation_fallback = remaining // 4
                 num_long_fallback = remaining // 4
@@ -353,7 +331,7 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
                 fallback_selected.extend(random.sample(long_fallback, min(num_long_fallback, len(long_fallback))))
                 fallback_selected.extend(random.sample(sarcasm_fallback, min(num_sarcasm_fallback, len(sarcasm_fallback))))
                 
-                # Si aún necesitamos más, tomar aleatoriamente del conjunto completo
+
                 if len(fallback_selected) < remaining:
                     still_needed = remaining - len(fallback_selected)
                     remaining_fallback = [f for f in fallback_tricky if f not in fallback_selected]
@@ -366,12 +344,12 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
         print(f"Error downloading Amazon/Yelp datasets: {e}")
         print("Using fallback tricky sentences...")
     
-    # Si no tenemos suficientes frases tricky, usamos un respaldo
+
     if len(tricky_sentences) < num_tricky:
         print("Not enough tricky sentences, adding fallback tricky examples...")
         
         fallback_tricky = [
-            # Frases con contrastes (pero, sin embargo, aunque...)
+
             "The food was amazing but the service was terrible.",
             "I don't hate this product, but I wouldn't recommend it either.",
             "It's not the worst movie I've seen, but definitely not the best either.",
@@ -393,7 +371,7 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
             "While the first half was engaging, the second half dragged on too long.",
             "The concept is innovative, but the execution leaves much to be desired.",
             
-            # Frases con negaciones
+
             "I wouldn't say it was a bad experience, just not what I expected.",
             "This isn't the worst restaurant in town, but I've had much better meals elsewhere.",
             "The service wasn't terrible, yet it certainly wasn't impressive either.",
@@ -405,7 +383,7 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
             "The app doesn't crash often, but when it does, you lose all your progress.",
             "The food wasn't inedible, just bland and overpriced for what you get.",
             
-            # Frases largas con múltiples perspectivas
+
             "After considering all the positive and negative aspects of the experience, I'm still not entirely sure whether I'd recommend it to others or not.",
             "On one hand the interface is intuitive and easy to navigate, but on the other hand the functionality is limited compared to similar products on the market.",
             "What started as an excellent novel with captivating characters and an intriguing plot gradually devolved into a predictable story with an unsatisfying conclusion.",
@@ -417,7 +395,7 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
             "Initially I was impressed by the product's quality and performance, but after a few months of use, several issues emerged that make me question its long-term durability and value.",
             "The first half of the movie brilliantly builds tension and develops characters you care about, only to squander that potential with a rushed third act that leaves too many questions unanswered.",
             
-            # Frases con sarcasmo o ironía
+
             "Oh sure, waiting two hours for a table at a restaurant that serves mediocre food at premium prices is exactly my idea of a perfect evening.",
             "The customer service was so helpful that I ended up solving the problem myself after being on hold for 45 minutes.",
             "If you enjoy products that work perfectly until just after the warranty expires, then this is definitely the one for you.",
@@ -430,11 +408,11 @@ def get_sentences_from_datasets(num_regular=50, num_tricky=50):
             "The instruction manual was incredibly helpful, assuming you already know exactly how to use the product."
         ]
         
-        # Seleccionar solo las frases faltantes para completar num_tricky
+
         needed = num_tricky - len(tricky_sentences)
         tricky_sentences.extend(fallback_tricky[:needed])
     
-    # Limpiar las frases: eliminar caracteres no deseados y URLs
+
     clean_regular = [re.sub(r'http\S+|www\S+|RT |\s+', ' ', str(s)).strip() for s in regular_sentences]
     clean_tricky = [re.sub(r'http\S+|www\S+|RT |\s+', ' ', str(s)).strip() for s in tricky_sentences]
     
@@ -452,13 +430,13 @@ from nltk import tokenize
 
 
 def main():
-    # Configurar la ruta para descargar recursos de NLTK en una carpeta local del proyecto
+
     nltk_data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'nltk_data')
     os.makedirs(nltk_data_dir, exist_ok=True)
     nltk.data.path.append(nltk_data_dir)
     
     print(f"Downloading required NLTK resources to {nltk_data_dir}...")
-    # Descargamos los corpus necesarios al inicio para evitar errores
+
     nltk.download('subjectivity', download_dir=nltk_data_dir)
     nltk.download('stopwords', download_dir=nltk_data_dir)
     nltk.download('punkt', download_dir=nltk_data_dir)
@@ -480,7 +458,7 @@ def main():
 
     print(f"Sentiment Analysis with NLTK - Enhanced Version")
     
-    # Cargar subjectivity corpus (manteniendo el original)
+
     subj_docs = [(sent, 'subj') for sent in subjectivity.sents(categories='subj')[:n_instances]]
     obj_docs = [(sent, 'obj') for sent in subjectivity.sents(categories='obj')[:n_instances]]
 
@@ -506,13 +484,13 @@ def main():
         print('{0}: {1}'.format(key, value))
 
 
-    # Obtener frases de datasets públicos (regular y tricky)
+
     num_sentences = 50  # Cantidad de frases a obtener de cada tipo
     regular_sentences, new_tricky_sentences = get_sentences_from_datasets(num_sentences, num_sentences)
     
     print(f"\nAdded {len(regular_sentences)} new regular sentences and {len(new_tricky_sentences)} new tricky sentences from datasets")
     
-    # Sentences originales
+
     original_sentences = [
         "VADER is smart, handsome, and funny.",
         "VADER is smart, handsome, and funny!",
@@ -533,7 +511,7 @@ def main():
         "Today kinda sux! But I'll get by, lol"
     ]
 
-    # Tricky sentences originales
+
     original_tricky_sentences = [
         "Most automated sentiment analysis tools are shit.",
         "VADER sentiment analysis is the shit.",
@@ -566,18 +544,18 @@ def main():
         under orders and in the ''least offensive way possible.''"
     ]
 
-    # Mezclar frases originales con las nuevas
+
     sentences = original_sentences + regular_sentences
     tricky_sentences = original_tricky_sentences + new_tricky_sentences
     
     print("\nTotal sentences for analysis:", len(sentences))
     sentences.extend(tricky_sentences)
 
-    # Eliminar stopwords
+
     stop_words = set(stopwords.words('english'))
     sentences = [' '.join([word for word in sentence.split() if word not in stop_words]) for sentence in sentences]
 
-    # Párrafo original
+
     paragraph = "It was one of the worst movies I've seen, despite good reviews. \
      Unbelievably bad acting!! Poor direction. VERY poor production. \
      The movie was bad. Very bad movie. VERY bad movie. VERY BAD movie. VERY BAD movie!"
@@ -586,7 +564,7 @@ def main():
     lines_list = tokenize.sent_tokenize(paragraph)
     sentences.extend(lines_list)
 
-    # Análisis de sentimientos con VADER
+
     print("\nVADER Sentiment Analysis on Sample Sentences:")
     sid = SentimentIntensityAnalyzer()
     for sentence in sentences:
@@ -596,7 +574,7 @@ def main():
              print('{0}: {1}, '.format(k, ss[k]), end='')
          print()
 
-    # Clasificador SVM
+
     print("\nSVM Classifier results:")
     svm_clf = SklearnClassifier(SVC())
     classifier_svm = sentim_analyzer.train(svm_clf.train, training_set)
