@@ -1,0 +1,115 @@
+Training classifier
+Evaluating NaiveBayesClassifier results...
+Accuracy: 0.87
+F-measure [obj]: 0.8645833333333333
+F-measure [subj]: 0.875
+Precision [obj]: 0.9021739130434783
+Precision [subj]: 0.8425925925925926
+Recall [obj]: 0.83
+Recall [subj]: 0.91
+VADER smart, handsome, funny.
+compound: 0.8316, neg: 0.0, neu: 0.102, pos: 0.898, 
+VADER smart, handsome, funny!
+compound: 0.8439, neg: 0.0, neu: 0.099, pos: 0.901, 
+VADER smart, handsome, funny.
+compound: 0.8316, neg: 0.0, neu: 0.102, pos: 0.898, 
+VADER VERY SMART, handsome, FUNNY.
+compound: 0.9348, neg: 0.0, neu: 0.132, pos: 0.868, 
+VADER VERY SMART, handsome, FUNNY!!!
+compound: 0.9439, neg: 0.0, neu: 0.124, pos: 0.876, 
+VADER VERY SMART, really handsome, INCREDIBLY FUNNY!!!
+compound: 0.9491, neg: 0.0, neu: 0.214, pos: 0.786, 
+The book good.
+compound: 0.4404, neg: 0.0, neu: 0.408, pos: 0.592, 
+The book kind good.
+compound: 0.743, neg: 0.0, neu: 0.241, pos: 0.759, 
+The plot good, characters uncompelling dialog great.
+compound: 0.7269, neg: 0.147, neu: 0.31, pos: 0.543, 
+A really bad, horrible book.
+compound: -0.8211, neg: 0.791, neu: 0.209, pos: 0.0, 
+At least horrible book.
+compound: -0.5423, neg: 0.538, neu: 0.462, pos: 0.0, 
+:) :D
+compound: 0.7925, neg: 0.0, neu: 0.0, pos: 1.0, 
+
+compound: 0.0, neg: 0.0, neu: 0.0, pos: 0.0, 
+Today sux
+compound: -0.3612, neg: 0.714, neu: 0.286, pos: 0.0, 
+Today sux!
+compound: -0.4199, neg: 0.736, neu: 0.264, pos: 0.0, 
+Today SUX!
+compound: -0.5461, neg: 0.779, neu: 0.221, pos: 0.0, 
+Today kinda sux! But I'll get by, lol
+compound: 0.5249, neg: 0.138, neu: 0.517, pos: 0.344, 
+Most automated sentiment analysis tools shit.
+compound: -0.5574, neg: 0.419, neu: 0.581, pos: 0.0, 
+VADER sentiment analysis shit.
+compound: -0.5574, neg: 0.545, neu: 0.455, pos: 0.0, 
+Sentiment analysis never good.
+compound: -0.3412, neg: 0.445, neu: 0.555, pos: 0.0, 
+Sentiment analysis VADER never good.
+compound: -0.3412, neg: 0.376, neu: 0.624, pos: 0.0, 
+Warren Beatty never entertaining.
+compound: -0.3412, neg: 0.445, neu: 0.555, pos: 0.0, 
+I say movie astounding I claim movie banal either.
+compound: 0.4215, neg: 0.0, neu: 0.682, pos: 0.318, 
+I like hate Michael Bay films, I fault one
+compound: -0.5994, neg: 0.496, neu: 0.31, pos: 0.194, 
+It's one thing watch Uwe Boll film, another thing entirely pay
+compound: -0.1761, neg: 0.145, neu: 0.855, pos: 0.0, 
+The movie good
+compound: 0.4404, neg: 0.0, neu: 0.408, pos: 0.592, 
+This movie actually neither funny, super witty.
+compound: -0.6759, neg: 0.526, neu: 0.474, pos: 0.0, 
+This movie care cleverness, wit kind intelligent humor.
+compound: 0.9325, neg: 0.0, neu: 0.167, pos: 0.833, 
+Those find ugly meanings beautiful things corrupt without charming.
+compound: -0.3553, neg: 0.392, neu: 0.369, pos: 0.24, 
+There slow repetitive parts, BUT enough spice keep interesting.
+compound: 0.4678, neg: 0.124, neu: 0.581, pos: 0.295, 
+The script fantastic, acting decent cinematography EXCELLENT!
+compound: 0.8528, neg: 0.0, neu: 0.375, pos: 0.625, 
+Roger Dodger one compelling variations theme.
+compound: 0.2263, neg: 0.0, neu: 0.725, pos: 0.275, 
+Roger Dodger one least compelling variations theme.
+compound: -0.1695, neg: 0.217, neu: 0.783, pos: 0.0, 
+Roger Dodger least compelling variation theme.
+compound: -0.1695, neg: 0.25, neu: 0.75, pos: 0.0, 
+fall love product
+compound: 0.6369, neg: 0.0, neu: 0.323, pos: 0.677, 
+breaks
+compound: 0.0, neg: 0.0, neu: 1.0, pos: 0.0, 
+usually around time 90 day warranty expires
+compound: 0.0, neg: 0.0, neu: 1.0, pos: 0.0, 
+twin towers collapsed today
+compound: -0.2732, neg: 0.412, neu: 0.588, pos: 0.0, 
+However, Mr. Carter solemnly argues, client carried kidnapping orders ''least offensive way possible.''
+compound: -0.5859, neg: 0.322, neu: 0.575, pos: 0.103, 
+It one worst movies I've seen, despite good reviews.
+compound: -0.7584, neg: 0.482, neu: 0.518, pos: 0.0, 
+Unbelievably bad acting!!
+compound: -0.6572, neg: 0.686, neu: 0.314, pos: 0.0, 
+Poor direction.
+compound: -0.4767, neg: 0.756, neu: 0.244, pos: 0.0, 
+VERY poor production.
+compound: -0.6281, neg: 0.674, neu: 0.326, pos: 0.0, 
+The movie bad.
+compound: -0.5423, neg: 0.636, neu: 0.364, pos: 0.0, 
+Very bad movie.
+compound: -0.5849, neg: 0.655, neu: 0.345, pos: 0.0, 
+VERY bad movie.
+compound: -0.6732, neg: 0.694, neu: 0.306, pos: 0.0, 
+VERY BAD movie.
+compound: -0.7398, neg: 0.724, neu: 0.276, pos: 0.0, 
+VERY BAD movie!
+compound: -0.7616, neg: 0.735, neu: 0.265, pos: 0.0, 
+Training classifier
+SVM Classifier results:
+Evaluating SklearnClassifier results...
+Accuracy: 0.85
+F-measure [obj]: 0.845360824742268
+F-measure [subj]: 0.854368932038835
+Precision [obj]: 0.8723404255319149
+Precision [subj]: 0.8301886792452831
+Recall [obj]: 0.82
+Recall [subj]: 0.88
